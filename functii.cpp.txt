@@ -1,0 +1,123 @@
+#include <stdio.h>
+#include <stdbool.h>
+typedef struct {
+	char nume[20], prenume[20];
+	int varsta;
+	int medii[3];
+}stud;
+
+void creare() {
+	FILE* f;
+	stud a;
+	fopen_s(&f, "studenti.dat", "wb"); 
+	printf("Varsta: "); scanf_s("%d", &a.varsta);
+	while (!feof(stdin)) 
+	{   // functia !feof(stdin) o folosim pentu a iesi din executia programului (trebuie sa apasam de 3 ori crtl + z + enter)
+
+		printf("Nume: "); getc(stdin); gets_s(a.nume);
+		//getc(stdin) este pentru golire buffer inainte de a cere de la tastatura un STRING
+
+		printf("Prenume: "); gets_s(a.prenume);
+		for (int i = 0; i < 3; i++) {
+			printf("Media %d: ", i + 1); scanf_s("%d", &a.medii[i]);
+		}
+		fwrite(&a, sizeof(a), 1, f); //(ce bagam in file, dimensiunea , de cate ori bagam , unde bagam )
+
+		printf("Varsta: "); scanf_s("%d", &a.varsta);
+	}
+	fclose(f);
+}
+
+void afisare() {
+	FILE* f; // fisier binar
+	FILE* g; // fisier text
+	stud a;
+	fopen_s(&f, "studenti.dat", "rb"); //"rb" folosim pentru consultare
+
+	if (f != NULL) 
+	{ //daca f este gol nu facem fisierul txt
+		fopen_s(&g, "studenti.txt", "w");
+		fread(&a, sizeof(a), 1, f);
+		// citim din fisierul f si bagam in dictionarul notat cu variabila "a"
+		while (!feof(f))  //cand nu mai are ce sa scrie din fisierul f se iese din while
+		{
+			printf("%d    %10s      %10s     %d     %d    %d \n", a.varsta, a.nume, a.prenume, a.medii[0], a.medii[1], a.medii[2]);
+			fprintf(g, "%d   %10s      %10s     %d     %d    %d\n", a.varsta, a.nume, a.prenume, a.medii[0], a.medii[1], a.medii[2]);
+			fread(&a, sizeof(a), 1, f);
+		}
+		fclose(f);
+		fclose(g);
+	}
+}
+
+void selectare() {
+	FILE* f; // declarare pointer pentru fisierul "studenti.dat"
+	FILE* g; // declarare pointer pentru fisierul "Selectia.txt"
+	stud a;
+	int varsta_dorita;
+	bool gasit = false; // Initializare flag pentru a verifica daca s-a gasit cel putin un student cu varsta dorita
+	fopen_s(&f, "studenti.dat", "rb"); // deschide fisierul "studenti.dat" in modul binar de citire
+
+	if (f == NULL) {
+		printf("Fisierul nu s-a putut deschide! "); 
+		return;
+	}
+	printf("Varsta selectata: "); scanf_s("%d", &varsta_dorita);
+	fopen_s(&g, "Selectia.txt", "w"); // deschide fisierul "Selectia.txt" in modul scriere
+
+	while (fread(&a, sizeof(a), 1, f)) // citeste inregistrari de tip stud din fisier pana la sfarsit
+
+	{
+		if (a.varsta == varsta_dorita) {
+			printf("%d    %10s      %10s     %d     %d    %d \n", a.varsta, a.nume, a.prenume, a.medii[0], a.medii[1], a.medii[2]);
+			fprintf(g, "%d   %10s      %10s     %d     %d    %d\n", a.varsta, a.nume, a.prenume, a.medii[0], a.medii[1], a.medii[2]);
+			gasit = true;
+		}
+	}
+	if (gasit == false) {
+		printf("Nu s-au gasit studenti cu varsta %d.", varsta_dorita);  // seteaza flag-ul pentru a indica ca s-a gasit cel putin un student cu varsta cautata
+
+	}
+	fclose(f);
+	fclose(g);
+}
+
+void actualizare_fisier()  // functie actualizare_fisier: adauga noi inregistrari in fisierul "studenti.dat"
+
+{
+	FILE* f;
+	stud a;  	// declarare variabila de tip structura stud pentru stocarea datelor unui student
+	int alegere; // declarare variabila pentru alegerea utilizatorului (1 pt da, 0 pt nu)
+
+	fopen_s(&f, "studenti.dat", "ab"); // deschide fisierul "studenti.dat" in modul binar de adaugare
+
+	if (f == NULL) {
+		printf("Fisierul nu s-a putut deschide cu succes :(\n");
+		return;
+	}
+	printf("Doresti sa adaugi datele unui student nou? 1 Este pt da, iar 0 pt nu (1/0)\n"); scanf_s("%d", &alegere);
+	if (alegere == 1) {
+		printf("Varsta: "); scanf_s("%d", &a.varsta);
+		while (!feof(stdin))  // loop continua pana la ctrl+z de 3 ori
+
+		{
+			printf("Nume: "); getc(stdin); gets_s(a.nume); //golire buffer
+			printf("Prenume: "); gets_s(a.prenume);
+			for (int i = 0; i < 3; i++) {
+				printf("Media %d: ", i + 1); scanf_s("%d", &a.medii[i]);
+			}
+			fwrite(&a, sizeof(a), 1, f);
+			printf("Varsta: "); scanf_s("%d", &a.varsta);
+		}
+	}
+	fclose(f);
+}
+
+
+void main() {
+	creare();
+	afisare();
+	selectare();
+	actualizare_fisier();
+	afisare();
+}
