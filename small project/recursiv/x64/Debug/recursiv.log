@@ -1,0 +1,3 @@
+﻿  factorial.cpp
+C:\Facultate\ATP\Seminare\recursiv\factorial.cpp(43,19): warning C4101: 'v': unreferenced local variable
+  recursiv.vcxproj -> C:\Facultate\ATP\Seminare\recursiv\x64\Debug\recursiv.exe
